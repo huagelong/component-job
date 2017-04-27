@@ -13,6 +13,7 @@
 
 namespace Trensy\Component\Job;
 
+use Trensy\Component\Job\Cron\CronExpression;
 use Trensy\Foundation\Bootstrap\Facade\Job as FJob;
 use Trensy\Foundation\Storage\Redis;
 use Trensy\Server\ProcessServer;
@@ -67,9 +68,13 @@ class JobServer extends ProcessServer
         if ($jobs) {
             Log::sysinfo("loading init jobs ...");
             foreach ($jobs as $k => $v) {
-                $obj = array_isset($v, 0);
-                $startTime = array_isset($v, 1);
-                $cronStr = array_isset($v, 2);
+                $obj = $this->array_isset($v, 0);
+                $startTime = $this->array_isset($v, 1);
+                $cronStr = $this->array_isset($v, 2);
+                if(!$startTime && $cronStr){
+                    $cron = CronExpression::factory($cronStr);
+                    $startTime = $cron->getNextRunDate()->format('Y-m-d H:i:s');
+                }
                 FJob::add($k, $obj, $startTime, $cronStr, 1);
             }
         }
