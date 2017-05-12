@@ -103,8 +103,10 @@ class JobBase
                 Log::sysinfo("$serverName stop success ");
                 break;
             case 'restart':
-                self::stop($appName);
-               self::start($config, $root);
+                $result = self::stop($appName);
+                if($result){
+                    self::start($config, $root);
+                }
                 break;
             case 'reload':
                 self::reload($appName);
@@ -119,15 +121,17 @@ class JobBase
     protected static function stop($appName)
     {
         $killStr = $appName . "-job";
-        exec("ps axu|grep " . $killStr . "|grep -v grep|awk '{print $2}'|xargs kill -9");
+        exec("ps axu|grep " . $killStr . "|grep -v grep|awk '{print $2}'|xargs kill -9", $out, $result);
         sleep(1);
+        return $result;
     }
 
     protected static function reload($appName)
     {
         $killStr = $appName . "-job-worker";
         $execStr = "ps axu|grep " . $killStr . "|grep -v grep|awk '{print $2}'|xargs kill -USR1";
-        exec($execStr);
+        exec($execStr, $out, $result);
+        return $result;
     }
 
     protected static function start($config, $root)
