@@ -43,6 +43,9 @@ class JobServer extends ProcessServer
         $perform = $this->config['perform'];
         $storage = new Redis();
         foreach ($perform as $queueName => $v) {
+            $lockKey = Job::JOB_KEY_PRE .$queueName. "CHECK";
+            $storage->del($lockKey);
+
             $key = Job::JOB_KEY_PRE . ":" . $queueName;
             if($isInit){
                 $key = "INIT_".$key;
@@ -79,7 +82,8 @@ class JobServer extends ProcessServer
                 $jobObj->add($k, $obj, $startTime, $cronStr, 1);
             }
         }
-
+        //等待一分钟，防止系统没有反应过来
+        sleep(1);
         $job = new Job($this->config);
         $name = self::$baseName . "-worker";
 

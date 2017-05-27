@@ -122,8 +122,18 @@ class JobBase
     {
         $killStr = $appName . "-job";
         exec("ps axu|grep " . $killStr . "|grep -v grep|awk '{print $2}'|xargs kill -9", $out, $result);
-        sleep(1);
-        return $result;
+        self::waitRunCmd("ps axu|grep " . $killStr . "|grep -v grep|awk '{print $2}'");
+        return true;
+    }
+
+    protected static function waitRunCmd($cmd)
+    {
+        exec($cmd, $out, $result);
+        if($out){
+            sleep(1);
+            self::waitRunCmd($cmd);
+        }
+        return true;
     }
 
     protected static function reload($appName)
@@ -131,7 +141,7 @@ class JobBase
         $killStr = $appName . "-job-worker";
         $execStr = "ps axu|grep " . $killStr . "|grep -v grep|awk '{print $2}'|xargs kill -USR1";
         exec($execStr, $out, $result);
-        return $result;
+        return true;
     }
 
     protected static function start($config, $root)
