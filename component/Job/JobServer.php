@@ -13,7 +13,6 @@
 
 namespace Trensy\Component\Job;
 
-use Trensy\Component\Job\Cron\CronExpression;
 use Trensy\Foundation\Storage\Redis;
 use Trensy\Server\ProcessServer;
 use Trensy\Support\Log;
@@ -36,53 +35,16 @@ class JobServer extends ProcessServer
     }
 
     /**
-     * 清空所有job
-     */
-    public function clear($isInit=0)
-    {
-        $perform = $this->config['perform'];
-        $storage = new Redis();
-        foreach ($perform as $queueName => $v) {
-            $lockKey = Job::JOB_KEY_PRE .$queueName. "CHECK";
-            $storage->del($lockKey);
-
-            $key = Job::JOB_KEY_PRE . ":" . $queueName;
-            if($isInit){
-                $key = "INIT_".$key;
-            }
-            $storage->del($key);
-        }
-    }
-
-    /**
      * job 服务开始
      */
     public function start()
     {
+
         $serverName = self::$baseName . "-master";
         swoole_set_process_name($serverName);
 
-        $perform = $this->config['perform'];
-
-        //载入初始化job
-        $this->clear(1);
-        $jobs = isset($this->config['jobs']) ? $this->config['jobs'] : null;
-        if ($jobs) {
-            Log::sysinfo("loading init jobs ...");
-            $jobObj = new Job($this->config);
-            foreach ($jobs as $k => $v) {
-                $obj = $this->array_isset($v, 0);
-                $startTime = $this->array_isset($v, 1);
-                $cronStr = $this->array_isset($v, 2);
-                if(!$startTime && $cronStr){
-                    $cron = CronExpression::factory($cronStr);
-                    $startTime = $cron->getNextRunDate()->format('Y-m-d H:i:s');
-                }
-
-                $jobObj->add($k, $obj, $startTime, $cronStr, 1);
-            }
-        }
-        //等待一分钟，防止系统没有反应过来
+        $perform = $this->config['jobs'];
+        //等待一秒，防止系统没有反应过来
         sleep(1);
         $job = new Job($this->config);
         $name = self::$baseName . "-worker";

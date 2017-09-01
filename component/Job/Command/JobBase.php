@@ -25,7 +25,7 @@ class JobBase
     {
         ElapsedTime::setStartTime(ElapsedTime::SYS_START);
         $root = Dir::formatPath(ROOT_PATH);
-        $config = Config::get("server.job");
+        $configJob = Config::get("server.job");
         $appName = Config::get("server.name");
 
         if (!$appName) {
@@ -33,16 +33,14 @@ class JobBase
             exit(0);
         }
 
-        if (!$config) {
+        if (!$configJob) {
             Log::sysinfo("job config not config");
             exit(0);
         }
 
-        if (!isset($config['server'])) {
-            Log::sysinfo("job.server config not config");
-            exit(0);
-        }
+        $config = [];
 
+        $config['jobs'] = $configJob;
 
         if ($input->hasOption("daemonize")) {
             $daemonize = $input->getOption('daemonize');
