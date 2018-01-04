@@ -14,6 +14,7 @@
 
 namespace Trensy\Component\Job;
 
+use Trensy\Di\Di;
 use Trensy\Foundation\Shortcut;
 use Trensy\Support\Exception;
 use Trensy\Support\Log;
@@ -121,7 +122,8 @@ class Job
         $class = isset($this->config['jobs'][$queueName]['class']) && $this->config['jobs'][$queueName]['class']?$this->config['jobs'][$queueName]['class']:null;
         if(!$class) return ;
 
-        $jobObj = new $class();
+        $jobObj = Di::get($class);
+//        $jobObj = new $class();
 
         if (!is_object($jobObj)) {
             Log::error("jobObj unvalidate :" . $queueName);

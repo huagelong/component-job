@@ -30,12 +30,12 @@ class JobBase
 
         if (!$appName) {
             Log::sysinfo("server.name not config");
-            exit(0);
+            return ;
         }
 
         if (!$configJob) {
             Log::sysinfo("job config not config");
-            exit(0);
+            return ;
         }
 
         $config = [];
@@ -58,7 +58,7 @@ class JobBase
             'daemonize' => 0,
             //worker数量，推荐设置和cpu核数相等
             'worker_num' => 2,
-            "mem_reboot_rate" => 0,//可用内存达到多少自动重启
+            "mem_reboot_rate" => 0.8,//可用内存达到多少自动重启
             "serialization" => 1
         ];
 

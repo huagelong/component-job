@@ -44,6 +44,7 @@ class JobServer extends ProcessServer
         swoole_set_process_name($serverName);
 
         $perform = $this->config['jobs'];
+        if(!$perform) return ;
         //等待一秒，防止系统没有反应过来
         sleep(1);
         $job = new Job($this->config);
