@@ -17,6 +17,7 @@ use Trensy\Component\Job\JobServer;
 use Trensy\Support\Arr;
 use Trensy\Support\Dir;
 use Trensy\Support\ElapsedTime;
+use Trensy\Support\Exception;
 use Trensy\Support\Log;
 
 class JobBase
@@ -47,7 +48,11 @@ class JobBase
             $config['server']['daemonize'] = $daemonize == 0 ? 0 : 1;
         }
 
-        self::doOperate($cmd, $config, $root, $appName, $output);
+        try{
+            self::doOperate($cmd, $config, $root, $appName, $output);
+        }catch (\Exception $e){
+            Log::error(Exception::formatException($e));
+        }
     }
 
 
